@@ -1,7 +1,7 @@
 
 ### Escuela Colombiana de Ingeniería
 ### Arquitecturas de Software - ARSW
-### Nikolai Bermudez Vega - Verbo Julian Camacho
+### Nikolai Bermudez Vega - Verbo Julian Camacho Villamarin
 ## Ejercicio Introducción al paralelismo - Hilos - Caso BlackListSearch
 
 

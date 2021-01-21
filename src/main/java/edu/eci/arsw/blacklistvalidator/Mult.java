@@ -4,4 +4,5 @@ public class Mult extends Thread{
     public Mult (String n){
         super(n);
     }
+
 }

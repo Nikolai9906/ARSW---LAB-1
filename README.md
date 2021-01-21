@@ -26,10 +26,12 @@
 
 
 **start()**
+
 ![](img/image.png)
 
 
 **run()**
+
 ![](img/image1.png)
 
 > Cuando se utiliza el metodo start() lo que esta haciendo es crear elhilo y cambiar el estado a Runnable, cuando le decimos al objeto dos veces start() esto puede llegar a generar un error del estilo *java.lang.IllegalThreadStateException*. Por otro lado el metodo run() lo que hace es ejecutar el hilo sin tener que cambiarle el estado mas de una vez, por lo que hace el llamado a un metodo llegando a generar que no pueda hacer otra instruccion hasta que acabe el metodo que esta actualmente haciendo, por eso se puede llegar a ver en orden la ejecucion siendo algo totalmente diferente al metodo start().

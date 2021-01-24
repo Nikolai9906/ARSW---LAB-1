@@ -6,8 +6,11 @@
 package edu.eci.arsw.blacklistvalidator;
 
 import edu.eci.arsw.spamkeywordsdatasource.HostBlacklistsDataSourceFacade;
+
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -29,28 +32,41 @@ public class HostBlackListsValidator {
      * @param ipaddress suspicious host's IP address.
      * @return  Blacklists numbers where the given host's IP address was found.
      */
-    public List<Integer> checkHost(String ipaddress){
+    public List<Integer> checkHost(String ipaddress, int n){
         
         LinkedList<Integer> blackListOcurrences=new LinkedList<>();
-        
-        int ocurrencesCount=0;
-        
+        AtomicInteger ocurrencesCount= new AtomicInteger(0);
         HostBlacklistsDataSourceFacade skds=HostBlacklistsDataSourceFacade.getInstance();
-        
-        int checkedListsCount=0;
-        
-        for (int i=0;i<skds.getRegisteredServersCount() && ocurrencesCount<BLACK_LIST_ALARM_COUNT;i++){
-            checkedListsCount++;
-            
-            if (skds.isInBlackListServer(i, ipaddress)){
-                
-                blackListOcurrences.add(i);
-                
-                ocurrencesCount++;
+        AtomicInteger checkedListsCount= new AtomicInteger(0);
+
+        ArrayList<Mult> hilo = new ArrayList<Mult>();
+        int numeroAnalisis = skds.getRegisteredServersCount()/n;
+        int servidorActual = 0;
+
+        for(int i = 0; i < n; i++ ) {
+            Mult temporal;
+            if (i == n-1) {
+                temporal = 	new Mult(skds, ocurrencesCount, BLACK_LIST_ALARM_COUNT, checkedListsCount, ipaddress, blackListOcurrences, servidorActual, numeroAnalisis+(skds.getRegisteredServersCount() % n));
+            }else {
+                temporal = new Mult(skds, ocurrencesCount, BLACK_LIST_ALARM_COUNT, checkedListsCount, ipaddress, blackListOcurrences, servidorActual, numeroAnalisis);
+            }
+            hilo.add(temporal);
+            servidorActual+= numeroAnalisis;
+        }
+        for (int i=0;i<n;i++) {
+            hilo.get(i).start();
+        }
+        for (int i=0;i<n;i++) {
+            try {
+                hilo.get(i).join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
-        
-        if (ocurrencesCount>=BLACK_LIST_ALARM_COUNT){
+
+
+
+        if (ocurrencesCount.get()>=BLACK_LIST_ALARM_COUNT){
             skds.reportAsNotTrustworthy(ipaddress);
         }
         else{
